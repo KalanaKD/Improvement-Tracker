@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { TrendingUp, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+import { TrendingUp, ChevronLeft, ChevronRight, CalendarDays, LogOut } from 'lucide-react';
 import TrackerCard from '../components/TrackerCard';
 import ProgressChart from '../components/ProgressChart';
 import DayModal from '../components/DayModal';
 import ThemeToggle from '../components/ThemeToggle';
 import { trackerAPI, entryAPI, statsAPI } from '../lib/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const MONTH_NAMES = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -13,6 +14,7 @@ const MONTH_NAMES = [
 ];
 
 const Dashboard = () => {
+    const { user, signOut } = useAuth();
     const realNow = new Date();
     const [viewYear, setViewYear] = useState(realNow.getFullYear());
     const [viewMonth, setViewMonth] = useState(realNow.getMonth() + 1);
@@ -160,7 +162,29 @@ const Dashboard = () => {
                             )}
                         </div>
 
-                        <ThemeToggle />
+                        <div className="flex items-center gap-2">
+                            <ThemeToggle />
+                            {/* User avatar + sign out */}
+                            <div className="flex items-center gap-2 pl-2 border-l border-border">
+                                {user?.user_metadata?.avatar_url && (
+                                    <img
+                                        src={user.user_metadata.avatar_url}
+                                        alt="avatar"
+                                        className="w-8 h-8 rounded-full border-2 border-border"
+                                    />
+                                )}
+                                <span className="text-xs text-muted-foreground hidden sm:block max-w-[120px] truncate">
+                                    {user?.user_metadata?.full_name || user?.email}
+                                </span>
+                                <button
+                                    onClick={signOut}
+                                    title="Sign out"
+                                    className="p-2 hover:bg-secondary rounded-lg transition-colors text-muted-foreground hover:text-foreground"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>

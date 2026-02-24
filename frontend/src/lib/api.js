@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { supabase } from './supabase';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
@@ -8,6 +9,24 @@ const api = axios.create({
         'Content-Type': 'application/json',
     },
 });
+
+// Attach Bearer token from Supabase session on every request
+api.interceptors.request.use(async (config) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+        config.headers.Authorization = `Bearer ${session.access_token}`;
+    }
+    return config;
+});
+
+export const authAPI = {
+    provision: (token) =>
+        axios.post(
+            `${API_BASE_URL}/auth/provision`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+        ),
+};
 
 export const trackerAPI = {
     getAll: () => api.get('/trackers'),

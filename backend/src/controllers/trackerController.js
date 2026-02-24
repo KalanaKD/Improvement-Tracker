@@ -3,8 +3,8 @@ import { trackerService } from '../services/trackerService.js';
 export const trackerController = {
     async getAllTrackers(req, res) {
         try {
-            const { user_id } = req.query;
-            const trackers = await trackerService.getAllTrackers(user_id);
+            // Always use the authenticated user's ID from the JWT
+            const trackers = await trackerService.getAllTrackers(req.user.id);
             res.json({ success: true, data: trackers });
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });

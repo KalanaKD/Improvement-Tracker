@@ -1,19 +1,13 @@
 import { supabase } from '../config/database.js';
 
 export const trackerService = {
-    // Get all trackers (optionally filtered by user_id for future auth)
-    async getAllTrackers(userId = null) {
+    async getAllTrackers(userId) {
         try {
-            let query = supabase.from('trackers').select('*');
-
-            if (userId) {
-                query = query.eq('user_id', userId);
-            } else {
-                // For MVP: get trackers without user_id (public trackers)
-                query = query.is('user_id', null);
-            }
-
-            const { data, error } = await query.order('created_at', { ascending: true });
+            const { data, error } = await supabase
+                .from('trackers')
+                .select('*')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: true });
 
             if (error) throw error;
             return data;
