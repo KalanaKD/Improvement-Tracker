@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glassmorphism {
+    backdrop-filter: blur(16px);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .dark .glassmorphism {
+    background-color: rgba(255, 255, 255, 0.04);
+  }
+
+  /* Day cells — responsive: smaller on mobile, comfortable on desktop */
+  .day-cell {
+    @apply aspect-square rounded-lg flex items-center justify-center cursor-pointer transition-all duration-150 text-xs font-medium select-none;
+  }
+
+  .day-empty {
+    @apply bg-secondary/60 hover:bg-secondary text-foreground/70;
+  }
+
+  .dark .day-empty {
+    @apply bg-gray-800/60 hover:bg-gray-700/60;
+  }
+
+  /* Today highlight — ring instead of fill so it doesn't override status colors */
+  .day-today {
+    @apply ring-2 ring-offset-1 ring-primary font-bold text-foreground;
+  }
+
+  .dark .day-today {
+    @apply ring-offset-gray-900;
+  }
+
+  .day-completed {
+    @apply text-white font-semibold shadow-sm;
+  }
+
+  .day-missed {
+    @apply bg-red-500 hover:bg-red-600 text-white font-semibold;
+  }
+
+  /* Smooth scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+}
