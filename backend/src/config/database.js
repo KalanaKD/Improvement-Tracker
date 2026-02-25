@@ -12,11 +12,27 @@ if (!supabaseUrl || !supabaseKey) {
     process.exit(1);
 }
 
-// Regular client (respects RLS — used for user requests)
+// Regular client (respects RLS — used for generic/anonymous requests)
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
+/**
+ * Creates a Supabase client scoped to a specific user's JWT.
+ * This is required for RLS-protected tables — the user's token must
+ * be present so Postgres can evaluate auth.uid() policies correctly.
+ */
+export const getUserClient = (token) => {
+    return createClient(supabaseUrl, supabaseKey, {
+        global: {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        },
+        auth: { autoRefreshToken: false, persistSession: false },
+    });
+};
+
 // Admin client (bypasses RLS — used only for provisioning new users)
-export const supabaseAdmin = supabaseServiceKey
+export const supabaseAdmin = supabaseServiceKey && !supabaseServiceKey.includes('your_service_role_key')
     ? createClient(supabaseUrl, supabaseServiceKey, {
         auth: { autoRefreshToken: false, persistSession: false },
     })

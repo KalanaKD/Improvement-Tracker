@@ -1,14 +1,15 @@
-import { supabase } from '../config/database.js';
+import { getUserClient } from '../config/database.js';
 
 export const entryService = {
     // Get entries for a tracker within a month
-    async getEntriesForMonth(trackerId, year, month) {
+    async getEntriesForMonth(trackerId, year, month, token) {
         try {
+            const client = getUserClient(token);
             const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
             const endDate = new Date(year, month, 0); // Last day of month
             const endDateStr = `${year}-${String(month).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
 
-            const { data, error } = await supabase
+            const { data, error } = await client
                 .from('entries')
                 .select('*, tasks(*)')
                 .eq('tracker_id', trackerId)
@@ -24,11 +25,12 @@ export const entryService = {
     },
 
     // Create or update an entry
-    async upsertEntry(entryData) {
+    async upsertEntry(entryData, token) {
         try {
+            const client = getUserClient(token);
             const { tracker_id, entry_date, status, notes } = entryData;
 
-            const { data, error } = await supabase
+            const { data, error } = await client
                 .from('entries')
                 .upsert(
                     {
@@ -53,9 +55,10 @@ export const entryService = {
     },
 
     // Update entry status
-    async updateEntryStatus(entryId, status) {
+    async updateEntryStatus(entryId, status, token) {
         try {
-            const { data, error } = await supabase
+            const client = getUserClient(token);
+            const { data, error } = await client
                 .from('entries')
                 .update({ status, updated_at: new Date().toISOString() })
                 .eq('id', entryId)
@@ -70,9 +73,10 @@ export const entryService = {
     },
 
     // Delete entry
-    async deleteEntry(entryId) {
+    async deleteEntry(entryId, token) {
         try {
-            const { error } = await supabase
+            const client = getUserClient(token);
+            const { error } = await client
                 .from('entries')
                 .delete()
                 .eq('id', entryId);

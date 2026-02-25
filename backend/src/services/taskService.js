@@ -1,10 +1,11 @@
-import { supabase } from '../config/database.js';
+import { getUserClient } from '../config/database.js';
 
 export const taskService = {
     // Get tasks for an entry
-    async getTasksForEntry(entryId) {
+    async getTasksForEntry(entryId, token) {
         try {
-            const { data, error } = await supabase
+            const client = getUserClient(token);
+            const { data, error } = await client
                 .from('tasks')
                 .select('*')
                 .eq('entry_id', entryId)
@@ -18,11 +19,12 @@ export const taskService = {
     },
 
     // Create a task
-    async createTask(taskData) {
+    async createTask(taskData, token) {
         try {
+            const client = getUserClient(token);
             const { entry_id, title, description, completed } = taskData;
 
-            const { data, error } = await supabase
+            const { data, error } = await client
                 .from('tasks')
                 .insert([{ entry_id, title, description, completed: completed || false }])
                 .select()
@@ -36,9 +38,10 @@ export const taskService = {
     },
 
     // Update task
-    async updateTask(taskId, updates) {
+    async updateTask(taskId, updates, token) {
         try {
-            const { data, error } = await supabase
+            const client = getUserClient(token);
+            const { data, error } = await client
                 .from('tasks')
                 .update({ ...updates, updated_at: new Date().toISOString() })
                 .eq('id', taskId)
@@ -53,9 +56,10 @@ export const taskService = {
     },
 
     // Delete task
-    async deleteTask(taskId) {
+    async deleteTask(taskId, token) {
         try {
-            const { error } = await supabase
+            const client = getUserClient(token);
+            const { error } = await client
                 .from('tasks')
                 .delete()
                 .eq('id', taskId);

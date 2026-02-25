@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../config/database.js';
+import { supabaseAdmin, getUserClient } from '../config/database.js';
 
 const DEFAULT_TRACKERS = [
     {
@@ -30,17 +30,16 @@ const DEFAULT_TRACKERS = [
 export const provisionService = {
     /**
      * Ensures a user has their 4 default trackers.
-     * Uses the admin (service role) client to bypass RLS.
+     * Tries admin client first (bypasses RLS), falls back to user-scoped client.
      * Safe to call multiple times — idempotent.
      */
-    async provisionUser(userId) {
-        if (!supabaseAdmin) {
-            throw new Error('Service role key not configured. Cannot provision user.');
-        }
+    async provisionUser(userId, token) {
+        // Use admin client if available, otherwise use the user's own JWT
+        const client = supabaseAdmin || getUserClient(token);
 
         try {
             // Check if user already has trackers
-            const { data: existing, error: checkError } = await supabaseAdmin
+            const { data: existing, error: checkError } = await client
                 .from('trackers')
                 .select('id')
                 .eq('user_id', userId);
@@ -52,20 +51,25 @@ export const provisionService = {
                 return { provisioned: false, message: 'User already has trackers' };
             }
 
-            // Create the 4 default trackers for this user
-            const trackersToInsert = DEFAULT_TRACKERS.map((t) => ({
+            // Determine which trackers to insert (avoid duplicates if partially provisioned)
+            const existingCount = existing ? existing.length : 0;
+            const trackersToInsert = DEFAULT_TRACKERS.slice(existingCount).map((t) => ({
                 ...t,
                 user_id: userId,
             }));
 
-            const { data, error } = await supabaseAdmin
+            if (trackersToInsert.length === 0) {
+                return { provisioned: false, message: 'User already has trackers' };
+            }
+
+            const { data, error } = await client
                 .from('trackers')
                 .insert(trackersToInsert)
                 .select();
 
             if (error) throw error;
 
-            console.log(`✅ Provisioned 4 trackers for user ${userId}`);
+            console.log(`✅ Provisioned ${trackersToInsert.length} tracker(s) for user ${userId}`);
             return { provisioned: true, trackers: data };
         } catch (error) {
             throw new Error(`Failed to provision user: ${error.message}`);

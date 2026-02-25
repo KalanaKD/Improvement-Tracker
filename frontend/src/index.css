@@ -1,3 +1,48 @@
+/* ─── CSS Theme Variables ─────────────────────────────────────────────────────
+   Values are raw R G B (no commas) so Tailwind's / alpha modifier works:
+   e.g. rgb(var(--color-background) / 0.5)
+──────────────────────────────────────────────────────────────────────────── */
+
+/* Light theme */
+:root {
+  --color-background: 248 250 252;
+  /* slate-50  */
+  --color-foreground: 15 23 42;
+  /* slate-900 */
+  --color-card: 255 255 255;
+  /* white     */
+  --color-border: 226 232 240;
+  /* slate-200 */
+  --color-primary: 139 92 246;
+  /* violet-500 */
+  --color-secondary: 241 245 249;
+  /* slate-100 */
+  --color-muted: 241 245 249;
+  /* slate-100 */
+  --color-muted-foreground: 100 116 139;
+  /* slate-500 */
+}
+
+/* Dark theme */
+.dark {
+  --color-background: 9 11 21;
+  /* near-black */
+  --color-foreground: 248 250 252;
+  /* slate-50   */
+  --color-card: 17 24 39;
+  /* gray-900   */
+  --color-border: 30 41 59;
+  /* slate-800  */
+  --color-primary: 139 92 246;
+  /* violet-500 */
+  --color-secondary: 30 41 59;
+  /* slate-800  */
+  --color-muted: 30 41 59;
+  /* slate-800  */
+  --color-muted-foreground: 148 163 184;
+  /* slate-400  */
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -1,14 +1,15 @@
-import { supabase } from '../config/database.js';
+import { getUserClient } from '../config/database.js';
 
 export const statsService = {
     // Get completion statistics for a tracker in a given month
-    async getMonthlyStats(trackerId, year, month) {
+    async getMonthlyStats(trackerId, year, month, token) {
         try {
+            const client = getUserClient(token);
             const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
             const endDate = new Date(year, month, 0);
             const endDateStr = `${year}-${String(month).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
 
-            const { data, error } = await supabase
+            const { data, error } = await client
                 .from('entries')
                 .select('status')
                 .eq('tracker_id', trackerId)
@@ -35,9 +36,9 @@ export const statsService = {
     },
 
     // Get aggregated stats for all trackers
-    async getAllTrackersStats(trackerIds, year, month) {
+    async getAllTrackersStats(trackerIds, year, month, token) {
         try {
-            const promises = trackerIds.map(id => this.getMonthlyStats(id, year, month));
+            const promises = trackerIds.map(id => this.getMonthlyStats(id, year, month, token));
             const results = await Promise.all(promises);
 
             return trackerIds.map((id, index) => ({

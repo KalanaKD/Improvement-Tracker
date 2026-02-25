@@ -14,7 +14,8 @@ router.use(authMiddleware);
 // ─── Auth: Provision new user ────────────────────────────────────────────────
 router.post('/auth/provision', async (req, res) => {
     try {
-        const result = await provisionService.provisionUser(req.user.id);
+        const token = req.headers.authorization?.replace('Bearer ', '');
+        const result = await provisionService.provisionUser(req.user.id, token);
         res.json({ success: true, ...result });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });

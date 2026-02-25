@@ -1,9 +1,10 @@
-import { supabase } from '../config/database.js';
+import { getUserClient } from '../config/database.js';
 
 export const trackerService = {
-    async getAllTrackers(userId) {
+    async getAllTrackers(userId, token) {
         try {
-            const { data, error } = await supabase
+            const client = getUserClient(token);
+            const { data, error } = await client
                 .from('trackers')
                 .select('*')
                 .eq('user_id', userId)
@@ -17,9 +18,10 @@ export const trackerService = {
     },
 
     // Get single tracker by ID
-    async getTrackerById(trackerId) {
+    async getTrackerById(trackerId, token) {
         try {
-            const { data, error } = await supabase
+            const client = getUserClient(token);
+            const { data, error } = await client
                 .from('trackers')
                 .select('*')
                 .eq('id', trackerId)
@@ -33,9 +35,10 @@ export const trackerService = {
     },
 
     // Update tracker (e.g., custom color)
-    async updateTracker(trackerId, updates) {
+    async updateTracker(trackerId, updates, token) {
         try {
-            const { data, error } = await supabase
+            const client = getUserClient(token);
+            const { data, error } = await client
                 .from('trackers')
                 .update({ ...updates, updated_at: new Date().toISOString() })
                 .eq('id', trackerId)
