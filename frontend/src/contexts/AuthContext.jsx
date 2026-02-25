@@ -8,6 +8,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [session, setSession] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [lastProvision, setLastProvision] = useState(0);
 
     useEffect(() => {
         // Get initial session
@@ -28,6 +29,8 @@ export const AuthProvider = ({ children }) => {
                 if (event === 'SIGNED_IN' && session) {
                     try {
                         await authAPI.provision(session.access_token);
+                        // Signal dashboard to re-fetch now that trackers exist
+                        setLastProvision((n) => n + 1);
                     } catch (err) {
                         console.error('Provisioning failed:', err);
                     }
@@ -54,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, session, loading, signInWithGoogle, signOut }}>
+        <AuthContext.Provider value={{ user, session, loading, lastProvision, signInWithGoogle, signOut }}>
             {children}
         </AuthContext.Provider>
     );
